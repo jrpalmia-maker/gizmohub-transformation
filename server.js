@@ -93,21 +93,18 @@ const sessions = new Map();
 app.post('/api/auth/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-
-        const connection = await pool.getConnection();
         
         // Support login by email, username (first_name), or phone
-        const [users] = await connection.query(
-            'SELECT * FROM customers WHERE email = ? OR first_name = ? OR phone = ?',
+        const result = await pool.query(
+            'SELECT * FROM customers WHERE email = $1 OR first_name = $2 OR phone = $3',
             [email, email, email]
         );
-        connection.release();
 
-        if (users.length === 0) {
+        if (result.rows.length === 0) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        const user = users[0];
+        const user = result.rows[0];
         // Simple password comparison (in production use bcrypt)
         const isPasswordValid = password === user.password;
 
@@ -187,28 +184,23 @@ app.post('/api/auth/register', async (req, res) => {
             return res.status(400).json({ error: 'Missing required fields: email, first_name, last_name, password' });
         }
 
-        const connection = await pool.getConnection();
-
         // Check if email exists
-        const [existing] = await connection.query(
-            'SELECT * FROM customers WHERE email = ?',
+        const existingResult = await pool.query(
+            'SELECT * FROM customers WHERE email = $1',
             [email]
         );
 
-        if (existing.length > 0) {
-            connection.release();
+        if (existingResult.rows.length > 0) {
             return res.status(400).json({ error: 'Email already registered' });
         }
 
         // Simple password storage (in production use bcrypt)
         const hashedPassword = password;
 
-        await connection.query(
-            'INSERT INTO customers (email, first_name, last_name, password, phone) VALUES (?, ?, ?, ?, ?)',
+        await pool.query(
+            'INSERT INTO customers (email, first_name, last_name, password, phone) VALUES ($1, $2, $3, $4, $5)',
             [email, first_name, last_name, hashedPassword, phone || null]
         );
-
-        connection.release();
 
         res.json({ message: 'Registration successful. Please login.' });
     } catch (error) {
