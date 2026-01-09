@@ -1,11 +1,10 @@
 import express from 'express';
-import pkg from 'pg';
+import mysql from 'mysql2/promise';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const { Pool } = pkg;
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -21,21 +20,16 @@ app.get('/', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
 });
 
-// PostgreSQL Connection Pool
-let pool;
-if (process.env.DATABASE_URL) {
-    pool = new Pool({
-        connectionString: process.env.DATABASE_URL,
-    });
-} else {
-    pool = new Pool({
-        host: process.env.DB_HOST || 'localhost',
-        port: process.env.DB_PORT || 5432,
-        user: process.env.DB_USER || 'postgres',
-        password: process.env.DB_PASSWORD || '',
-        database: process.env.DB_NAME || 'gizmohub_db',
-    });
-}
+// MySQL Connection Pool
+const pool = mysql.createPool({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'gizmohub_db',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+});
 
 // Start Server
 const PORT = process.env.PORT || 5000;
@@ -72,7 +66,7 @@ server.on('error', (err) => {
 
 // Test database connection asynchronously (doesn't block server start)
 console.log('Testing database connection...');
-pool.connect().then(conn => {
+pool.getConnection().then(conn => {
     console.log('✓ Database connected successfully');
     conn.release();
 }).catch(err => {
