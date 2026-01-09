@@ -136,18 +136,16 @@ app.post('/api/auth/admin-login', async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        const connection = await pool.getConnection();
-        const [admins] = await connection.query(
-            'SELECT * FROM admins WHERE username = ?',
+        const result = await pool.query(
+            'SELECT * FROM admins WHERE username = $1',
             [username]
         );
-        connection.release();
 
-        if (admins.length === 0) {
+        if (result.rows.length === 0) {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
 
-        const admin = admins[0];
+        const admin = result.rows[0];
         // Simple password comparison (in production use bcrypt)
         const isPasswordValid = password === admin.password;
 
