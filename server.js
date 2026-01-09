@@ -22,12 +22,12 @@ app.get('/', (req, res) => {
 });
 
 // PostgreSQL Connection Pool
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-});
-
-// Alternative: If DATABASE_URL is not available, build from components
-if (!process.env.DATABASE_URL) {
+let pool;
+if (process.env.DATABASE_URL) {
+    pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+    });
+} else {
     pool = new Pool({
         host: process.env.DB_HOST || 'localhost',
         port: process.env.DB_PORT || 5432,
