@@ -2,13 +2,21 @@ import express from 'express';
 import pkg from 'pg';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const { Pool } = pkg;
 const app = express();
 app.use(express.json());
 app.use(cors());
+
+// Serve static files from dist folder (React build)
+app.use(express.static(path.join(__dirname, 'dist')));
 
 // Log all requests
 app.use((req, res, next) => {
@@ -17,7 +25,7 @@ app.use((req, res, next) => {
 });
 
 // Health check endpoint
-app.get('/', (req, res) => {
+app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
 });
 
