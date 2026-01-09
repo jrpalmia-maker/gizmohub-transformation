@@ -217,42 +217,39 @@ app.post('/api/auth/register', async (req, res) => {
 app.get('/api/products', async (req, res) => {
     try {
         console.log('Fetching products...');
-        const connection = await pool.getConnection();
-        console.log('Connection acquired');
-        const [products] = await connection.query(
+        const result = await pool.query(
             `SELECT p.*, c.name as category_name, b.name as brand_name 
             FROM products p
             LEFT JOIN categories c ON p.category_id = c.category_id
             LEFT JOIN brands b ON p.brand_id = b.brand_id`
         );
-        console.log('Query executed, got ' + products.length + ' products');
-        connection.release();
+        console.log('Query executed, got ' + result.rows.length + ' products');
 
-        res.json(products);
+        res.json(result.rows);
     } catch (error) {
         console.error('Products fetch error:', error);
         res.status(500).json({ error: 'Failed to fetch products', details: error.message });
     }
-});// Get Product by ID
+});
+
+// Get Product by ID
 app.get('/api/products/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const connection = await pool.getConnection();
-        const [products] = await connection.query(
+        const result = await pool.query(
             `SELECT p.*, c.name as category_name, b.name as brand_name 
              FROM products p
              LEFT JOIN categories c ON p.category_id = c.category_id
              LEFT JOIN brands b ON p.brand_id = b.brand_id
-             WHERE p.product_id = ?`,
+             WHERE p.product_id = $1`,
             [id]
         );
-        connection.release();
 
-        if (products.length === 0) {
+        if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Product not found' });
         }
 
-        res.json(products[0]);
+        res.json(result.rows[0]);
     } catch (error) {
         console.error('Product fetch error:', error);
         res.status(500).json({ error: 'Failed to fetch product' });
@@ -262,13 +259,11 @@ app.get('/api/products/:id', async (req, res) => {
 // Get All Categories
 app.get('/api/categories', async (req, res) => {
     try {
-        const connection = await pool.getConnection();
-        const [categories] = await connection.query(
+        const result = await pool.query(
             'SELECT * FROM categories ORDER BY name ASC'
         );
-        connection.release();
 
-        res.json(categories);
+        res.json(result.rows);
     } catch (error) {
         console.error('Categories fetch error:', error);
         res.status(500).json({ error: 'Failed to fetch categories', details: error.message });
@@ -278,13 +273,11 @@ app.get('/api/categories', async (req, res) => {
 // Get All Brands
 app.get('/api/brands', async (req, res) => {
     try {
-        const connection = await pool.getConnection();
-        const [brands] = await connection.query(
+        const result = await pool.query(
             'SELECT * FROM brands ORDER BY name ASC'
         );
-        connection.release();
 
-        res.json(brands);
+        res.json(result.rows);
     } catch (error) {
         console.error('Brands fetch error:', error);
         res.status(500).json({ error: 'Failed to fetch brands', details: error.message });
@@ -295,19 +288,17 @@ app.get('/api/brands', async (req, res) => {
 app.get('/api/products/category/:categoryId', async (req, res) => {
     try {
         const { categoryId } = req.params;
-        const connection = await pool.getConnection();
-        const [products] = await connection.query(
+        const result = await pool.query(
             `SELECT p.*, c.name as category_name, b.name as brand_name 
              FROM products p
              LEFT JOIN categories c ON p.category_id = c.category_id
              LEFT JOIN brands b ON p.brand_id = b.brand_id
-             WHERE p.category_id = ?
+             WHERE p.category_id = $1
              ORDER BY p.name ASC`,
             [categoryId]
         );
-        connection.release();
 
-        res.json(products);
+        res.json(result.rows);
     } catch (error) {
         console.error('Products by category fetch error:', error);
         res.status(500).json({ error: 'Failed to fetch products by category', details: error.message });
@@ -318,19 +309,17 @@ app.get('/api/products/category/:categoryId', async (req, res) => {
 app.get('/api/products/brand/:brandId', async (req, res) => {
     try {
         const { brandId } = req.params;
-        const connection = await pool.getConnection();
-        const [products] = await connection.query(
+        const result = await pool.query(
             `SELECT p.*, c.name as category_name, b.name as brand_name 
              FROM products p
              LEFT JOIN categories c ON p.category_id = c.category_id
              LEFT JOIN brands b ON p.brand_id = b.brand_id
-             WHERE p.brand_id = ?
+             WHERE p.brand_id = $1
              ORDER BY p.name ASC`,
             [brandId]
         );
-        connection.release();
 
-        res.json(products);
+        res.json(result.rows);
     } catch (error) {
         console.error('Products by brand fetch error:', error);
         res.status(500).json({ error: 'Failed to fetch products by brand', details: error.message });
@@ -345,18 +334,16 @@ app.get('/api/products/brand/:brandId', async (req, res) => {
 app.get('/api/cart/:customerId', async (req, res) => {
     try {
         const { customerId } = req.params;
-        const connection = await pool.getConnection();
-        const [cartItems] = await connection.query(
+        const result = await pool.query(
             `SELECT c.*, p.name, p.price, p.image, cat.name as category_name
              FROM cart c
              JOIN products p ON c.product_id = p.product_id
              LEFT JOIN categories cat ON p.category_id = cat.category_id
-             WHERE c.customer_id = ?`,
+             WHERE c.customer_id = $1`,
             [customerId]
         );
-        connection.release();
 
-        res.json(cartItems);
+        res.json(result.rows);
     } catch (error) {
         console.error('Cart fetch error:', error);
         res.status(500).json({ error: 'Failed to fetch cart' });
@@ -368,24 +355,22 @@ app.post('/api/cart', async (req, res) => {
     try {
         const { customerId, productId, quantity } = req.body;
 
-        const connection = await pool.getConnection();
-
         // Check if product exists in cart
-        const [existing] = await connection.query(
-            'SELECT * FROM cart WHERE customer_id = ? AND product_id = ?',
+        const existingResult = await pool.query(
+            'SELECT * FROM cart WHERE customer_id = $1 AND product_id = $2',
             [customerId, productId]
         );
 
-        if (existing.length > 0) {
+        if (existingResult.rows.length > 0) {
             // Update quantity
-            await connection.query(
-                'UPDATE cart SET quantity = quantity + ? WHERE customer_id = ? AND product_id = ?',
+            await pool.query(
+                'UPDATE cart SET quantity = quantity + $1 WHERE customer_id = $2 AND product_id = $3',
                 [quantity, customerId, productId]
             );
         } else {
             // Insert new cart item
-            await connection.query(
-                'INSERT INTO cart (customer_id, product_id, quantity) VALUES (?, ?, ?)',
+            await pool.query(
+                'INSERT INTO cart (customer_id, product_id, quantity) VALUES ($1, $2, $3)',
                 [customerId, productId, quantity]
             );
         }
