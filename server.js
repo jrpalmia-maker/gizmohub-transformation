@@ -171,44 +171,72 @@ async function initializeDatabase() {
 
         // Insert initial data (only if empty)
         const adminCheck = await client.query('SELECT COUNT(*) FROM admins');
-        if (adminCheck.rows[0].count === 0) {
-            await client.query(`
-                INSERT INTO admins (admin_id, username, password, full_name) VALUES
-                (1, 'admin', 'admin123', 'John Ron Paul Almia'),
-                (2, 'jrpalmia@gmail.com', 'almia123', 'john ron paul almia')
-            `);
+        if (adminCheck.rows[0].count === '0' || adminCheck.rows[0].count === 0) {
+            console.log('Inserting initial data...');
+            try {
+                await client.query(`
+                    INSERT INTO admins (admin_id, username, password, full_name) VALUES
+                    (1, 'admin', 'admin123', 'John Ron Paul Almia'),
+                    (2, 'jrpalmia@gmail.com', 'almia123', 'john ron paul almia')
+                `);
+                console.log('✓ Admins inserted');
+            } catch (err) {
+                console.error('Failed to insert admins:', err.message);
+            }
 
-            await client.query(`
-                INSERT INTO brands (brand_id, name, description) VALUES
-                (1, 'Samsung', 'Leading electronics manufacturer'),
-                (2, 'Apple', 'Premium technology brand'),
-                (3, 'Dell', 'Computer and laptop brand'),
-                (4, 'Generic', 'Various brands'),
-                (5, 'Lenovo', 'Lenovo is a leading global technology company')
-            `);
+            try {
+                await client.query(`
+                    INSERT INTO brands (brand_id, name, description) VALUES
+                    (1, 'Samsung', 'Leading electronics manufacturer'),
+                    (2, 'Apple', 'Premium technology brand'),
+                    (3, 'Dell', 'Computer and laptop brand'),
+                    (4, 'Generic', 'Various brands'),
+                    (5, 'Lenovo', 'Lenovo is a leading global technology company')
+                `);
+                console.log('✓ Brands inserted');
+            } catch (err) {
+                console.error('Failed to insert brands:', err.message);
+            }
 
-            await client.query(`
-                INSERT INTO categories (category_id, name, description) VALUES
-                (2, 'Smartphones', 'Mobile phones and accessories'),
-                (3, 'Laptops', 'Computers and notebooks'),
-                (4, 'Tablets', 'Tablet devices and accessories'),
-                (5, 'Accessories', 'Phone and computer accessories')
-            `);
+            try {
+                await client.query(`
+                    INSERT INTO categories (category_id, name, description) VALUES
+                    (2, 'Smartphones', 'Mobile phones and accessories'),
+                    (3, 'Laptops', 'Computers and notebooks'),
+                    (4, 'Tablets', 'Tablet devices and accessories'),
+                    (5, 'Accessories', 'Phone and computer accessories')
+                `);
+                console.log('✓ Categories inserted');
+            } catch (err) {
+                console.error('Failed to insert categories:', err.message);
+            }
 
-            await client.query(`
-                INSERT INTO customers (customer_id, first_name, last_name, email, password, phone, address, created_at) VALUES
-                (1, 'junjun', 'labyu', 'meow@gmail.com', '12345678', NULL, NULL, '2025-12-01 12:42:41'),
-                (4, 'Demo', 'User', 'demo@gizmohub.com', 'demo123', '555-0000', NULL, '2025-12-13 10:24:10')
-            `);
+            try {
+                await client.query(`
+                    INSERT INTO customers (customer_id, first_name, last_name, email, password, phone, address, created_at) VALUES
+                    (1, 'junjun', 'labyu', 'meow@gmail.com', '12345678', NULL, NULL, '2025-12-01 12:42:41'),
+                    (4, 'Demo', 'User', 'demo@gizmohub.com', 'demo123', '555-0000', NULL, '2025-12-13 10:24:10')
+                `);
+                console.log('✓ Customers inserted');
+            } catch (err) {
+                console.error('Failed to insert customers:', err.message);
+            }
 
-            await client.query(`
-                INSERT INTO products (product_id, name, description, price, stock, category_id, brand_id) VALUES
-                (1, 'Samsung Galaxy S24', 'Latest Samsung smartphone with 5G', 999.99, 50, 2, 1),
-                (2, 'iPhone 15 Pro', 'Premium Apple smartphone', 1299.99, 30, 2, 2),
-                (3, 'Dell XPS 13', 'Portable and powerful laptop', 1199.99, 20, 3, 3)
-            `);
+            try {
+                await client.query(`
+                    INSERT INTO products (product_id, name, description, price, stock, category_id, brand_id) VALUES
+                    (1, 'Samsung Galaxy S24', 'Latest Samsung smartphone with 5G', 999.99, 50, 2, 1),
+                    (2, 'iPhone 15 Pro', 'Premium Apple smartphone', 1299.99, 30, 2, 2),
+                    (3, 'Dell XPS 13', 'Portable and powerful laptop', 1199.99, 20, 3, 3)
+                `);
+                console.log('✓ Products inserted');
+            } catch (err) {
+                console.error('Failed to insert products:', err.message);
+            }
 
-            console.log('✓ Sample data inserted');
+            console.log('✓ Sample data insertion complete');
+        } else {
+            console.log('✓ Data already exists in database');
         }
 
         client.release();
