@@ -39,10 +39,16 @@ const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
 });
 
+pool.on('error', (err) => {
+    console.error('Unexpected error on idle client', err);
+});
+
 // Database Initialization Function
 async function initializeDatabase() {
     try {
+        console.log('Attempting to connect to PostgreSQL...');
         const client = await pool.connect();
+        console.log('✓ Successfully connected to PostgreSQL database');
         console.log('✓ Database connected, initializing schema...');
 
         // Create sequences
