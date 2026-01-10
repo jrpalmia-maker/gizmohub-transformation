@@ -13,8 +13,8 @@ export const Cart: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpe
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-2xl w-96 max-w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white rounded-2xl shadow-2xl w-96 max-w-[calc(100vw-2rem)] max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-300">
                 {/* Header */}
                 <div className="flex justify-between items-center p-6 border-b border-slate-200 sticky top-0 bg-white">
                     <h2 className="text-2xl font-bold text-slate-900">Shopping Cart</h2>
