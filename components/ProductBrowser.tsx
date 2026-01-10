@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { ProductDetailModal } from './ProductDetailModal';
 import { CategoryGrid } from './CategoryGrid';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://gizmohub-transformation.up.railway.app/api';
 
 interface Category {
     category_id: number;

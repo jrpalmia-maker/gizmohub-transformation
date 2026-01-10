@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'https://gizmohub-transformation.up.railway.app/api';
 
 interface Category {
     category_id: number;
