@@ -111,7 +111,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, c
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
             <div className="bg-white rounded-3xl shadow-2xl w-full max-w-6xl my-8 max-h-[90vh]">
                 {/* Header */}
                 <div className="flex justify-between items-center p-8 border-b-2 border-slate-100 bg-gradient-to-r from-blue-50 to-slate-50">
