@@ -110,7 +110,7 @@ export const ProductBrowser: React.FC = () => {
     }
 
     return (
-        <div id="categories-brands">
+        <div id="categories-brands" className="bg-white">
             {/* Category Grid Section */}
             <CategoryGrid 
                 onSelectCategory={(categoryId, categoryName) => {

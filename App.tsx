@@ -253,10 +253,11 @@ const AppContent: React.FC = () => {
             </nav>
 
             {/* Hero Section */}
-            <header id="overview" className="relative pt-20 pb-20 md:pt-32 md:pb-32 overflow-hidden text-white mt-14" style={{
+            <header id="overview" className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden text-white" style={{
                 background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 25%, #3b82f6 50%, #1e3a8a 75%, #0f172a 100%)',
                 backgroundSize: '400% 400%',
-                animation: 'gradient 15s ease infinite'
+                animation: 'gradient 15s ease infinite',
+                marginTop: 'calc(3.5rem + 1.5rem)'
             }}>
                 <style>{`
                     @keyframes gradient {
