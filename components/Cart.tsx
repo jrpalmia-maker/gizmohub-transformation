@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { CheckoutModal } from './CheckoutModal';
 
 export const Cart: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
     const { cartItems, removeFromCart, updateCartQuantity, clearCart } = useAuth();
+    const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
     const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const tax = subtotal * 0.08;
@@ -103,8 +105,10 @@ export const Cart: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpe
 
                             {/* Buttons */}
                             <div className="space-y-2 mt-6">
-                                <button className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all">
-                                    Proceed to Checkout
+                                <button 
+                                    onClick={() => setIsCheckoutOpen(true)}
+                                    className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all">
+                                    💳 Proceed to Checkout
                                 </button>
                                 <button
                                     onClick={() => clearCart()}
@@ -122,6 +126,13 @@ export const Cart: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpe
                         </>
                     )}
                 </div>
+
+                <CheckoutModal 
+                    isOpen={isCheckoutOpen}
+                    onClose={() => setIsCheckoutOpen(false)}
+                    cartItems={cartItems}
+                    total={total}
+                />
             </div>
         </div>
     );

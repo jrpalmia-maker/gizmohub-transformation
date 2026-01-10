@@ -247,12 +247,85 @@ async function initializeDatabase() {
 }
 
 // Start Server
-const PORT = process.env.PORT || 5000;
-const HOST = process.env.HOST || '0.0.0.0';
-console.log('Creating server on port:', PORT);
-console.log('Binding to host:', HOST);
+// =====================
+// ORDERS ENDPOINTS
+// =====================
 
-let server;
+app.post('/api/orders', async (req, res) => {
+    try {
+        const { customer_id, items, total, status } = req.body;
+
+        if (!customer_id || !items || !total) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        const result = await pool.query(
+            'INSERT INTO orders (customer_id, total, status) VALUES ($1, $2, $3) RETURNING order_id',
+            [customer_id, total, status || 'Pending']
+        );
+
+        const orderId = result.rows[0].order_id;
+
+        // Insert order items
+        for (const item of items) {
+            await pool.query(
+                'INSERT INTO order_items (order_id, product_id, quantity, price) VALUES ($1, $2, $3, $4)',
+                [orderId, item.product_id, item.quantity, item.price]
+            );
+        }
+
+        res.json({ order_id: orderId, message: 'Order created successfully' });
+    } catch (error) {
+        console.error('Order creation error:', error);
+        res.status(500).json({ error: 'Failed to create order', details: error.message });
+    }
+});
+
+app.get('/api/orders/:customerId', async (req, res) => {
+    try {
+        const { customerId } = req.params;
+        const result = await pool.query(
+            'SELECT * FROM orders WHERE customer_id = $1 ORDER BY order_date DESC',
+            [customerId]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Orders fetch error:', error);
+        res.status(500).json({ error: 'Failed to fetch orders' });
+    }
+});
+
+// =====================
+// PAYMENTS ENDPOINTS
+// =====================
+
+app.post('/api/payments', async (req, res) => {
+    try {
+        const { order_id, payment_method, amount, payment_status } = req.body;
+
+        if (!order_id || !payment_method || !amount) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        const result = await pool.query(
+            'INSERT INTO payments (order_id, payment_method, amount, payment_status) VALUES ($1, $2, $3, $4) RETURNING payment_id',
+            [order_id, payment_method, amount, payment_status || 'Pending']
+        );
+
+        // Update order status to Completed
+        await pool.query(
+            'UPDATE orders SET status = $1 WHERE order_id = $2',
+            ['Completed', order_id]
+        );
+
+        res.json({ payment_id: result.rows[0].payment_id, message: 'Payment processed successfully' });
+    } catch (error) {
+        console.error('Payment processing error:', error);
+        res.status(500).json({ error: 'Failed to process payment', details: error.message });
+    }
+});
+
+// Start Server
 try {
     server = app.listen(PORT, HOST, async () => {
         console.log(`✓ Server listening on ${HOST}:${PORT}`);
