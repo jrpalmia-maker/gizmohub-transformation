@@ -34,7 +34,7 @@ const AppContent: React.FC = () => {
     }, []);
 
     return (
-        <div className="min-h-screen text-slate-800">
+        <div className="w-full bg-white text-slate-800">
             {/* Modern Menubar */}
             <nav className="fixed w-full z-50 bg-white/95 backdrop-blur-lg shadow-xl border-b border-slate-200">
                 <div className="container mx-auto px-4 md:px-6 py-3">
