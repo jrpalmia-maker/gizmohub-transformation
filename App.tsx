@@ -35,40 +35,43 @@ const AppContent: React.FC = () => {
 
     return (
         <div className="min-h-screen text-slate-800">
-            {/* Menubar */}
-            <nav className="fixed w-full z-50 bg-slate-900 text-white shadow-lg border-b-2 border-blue-600">
-                <div className="container mx-auto px-6 py-2">
-                    <div className="flex items-center justify-between">
+            {/* Modern Menubar */}
+            <nav className="fixed w-full z-50 bg-white/95 backdrop-blur-lg shadow-xl border-b border-slate-200">
+                <div className="container mx-auto px-4 md:px-6 py-3">
+                    <div className="flex items-center justify-between h-16">
                         {/* Logo */}
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white font-bold text-lg">G</div>
-                            <span className="font-bold text-xl tracking-tight">Gizmohub</span>
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg hover:shadow-xl transition-shadow">G</div>
+                            <div>
+                                <span className="font-bold text-xl text-slate-900 block">Gizmohub</span>
+                                <span className="text-xs text-slate-500">Digital Store</span>
+                            </div>
                         </div>
 
                         {/* Hamburger Menu Button */}
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="lg:hidden p-2 hover:bg-slate-700 rounded transition-colors"
+                            className="lg:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
                             title="Toggle Menu"
                         >
                             {isMobileMenuOpen ? (
-                                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-6 h-6 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             ) : (
-                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-6 h-6 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                                 </svg>
                             )}
                         </button>
 
                         {/* Navigation Menu - Desktop */}
-                        <div className="hidden lg:flex items-center gap-8">
+                        <div className="hidden lg:flex items-center gap-1">
                             {NAV_LINKS.map(link => (
                                 <a 
                                     key={link.href} 
                                     href={link.href} 
-                                    className="text-sm font-medium hover:text-blue-400 transition-colors border-b-2 border-transparent hover:border-blue-400 pb-1"
+                                    className="px-4 py-2 text-sm font-semibold text-slate-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
                                 >
                                     {link.label}
                                 </a>
@@ -76,24 +79,24 @@ const AppContent: React.FC = () => {
                         </div>
 
                         {/* Right Side - User & Actions */}
-                        <div className="hidden lg:flex items-center gap-4">
+                        <div className="hidden lg:flex items-center gap-3">
                             {user ? (
                                 <>
-                                    <div className="text-sm hidden sm:block">
-                                        <div className="text-blue-400">{user.role === 'admin' ? '👑 Admin' : '👤 Customer'}</div>
-                                        <div className="font-semibold">{user.name || user.email || user.username}</div>
+                                    <div className="text-right pr-4 border-r border-slate-200">
+                                        <div className="text-xs font-semibold text-blue-600">{user.role === 'admin' ? '👑 ADMIN' : '👤 CUSTOMER'}</div>
+                                        <div className="text-sm font-bold text-slate-900 truncate max-w-[150px]">{user.name || user.email || user.username}</div>
                                     </div>
                                     
                                     {/* Quick Actions */}
                                     {user.role === 'user' && (
                                         <button
                                             onClick={() => setIsCartOpen(true)}
-                                            className="relative px-3 py-2 hover:bg-slate-700 rounded transition-colors"
+                                            className="relative p-2 hover:bg-blue-50 rounded-lg transition-colors group"
                                             title="Shopping Cart"
                                         >
-                                            <span className="text-xl">🛒</span>
+                                            <span className="text-2xl group-hover:scale-110 transition-transform">🛒</span>
                                             {cartItems.length > 0 && (
-                                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                                                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
                                                     {cartItems.length}
                                                 </span>
                                             )}
@@ -103,7 +106,7 @@ const AppContent: React.FC = () => {
                                     {user.role === 'admin' && (
                                         <button
                                             onClick={() => setIsProfileOpen(true)}
-                                            className="px-3 py-2 hover:bg-slate-700 rounded transition-colors text-sm font-medium"
+                                            className="px-3 py-2 hover:bg-purple-50 rounded-lg transition-colors text-sm font-semibold text-slate-700 hover:text-purple-600"
                                             title="Admin Dashboard"
                                         >
                                             📊 Dashboard
@@ -111,13 +114,13 @@ const AppContent: React.FC = () => {
                                     )}
 
                                     {user.role === 'admin' && (
-                                        <div className="flex gap-1 border-l border-slate-600 pl-4">
+                                        <div className="flex gap-2 border-l border-slate-200 pl-3">
                                             <button
                                                 onClick={() => {
                                                     setInsertDetailsType('product');
                                                     setIsInsertDetailsOpen(true);
                                                 }}
-                                                className="px-2 py-1 text-xs font-medium rounded hover:bg-blue-600 transition-colors"
+                                                className="px-3 py-2 text-xs font-semibold rounded-lg bg-blue-100 text-blue-700 hover:bg-blue-200 transition-all"
                                                 title="Add Product"
                                             >
                                                 + Product
@@ -127,7 +130,7 @@ const AppContent: React.FC = () => {
                                                 setInsertDetailsType('order');
                                                 setIsInsertDetailsOpen(true);
                                             }}
-                                            className="px-2 py-1 text-xs font-medium rounded hover:bg-green-600 transition-colors"
+                                            className="px-3 py-2 text-xs font-semibold rounded-lg bg-green-100 text-green-700 hover:bg-green-200 transition-all"
                                             title="Add Order"
                                         >
                                             + Order
@@ -137,7 +140,7 @@ const AppContent: React.FC = () => {
                                                 setInsertDetailsType('shipping');
                                                 setIsInsertDetailsOpen(true);
                                             }}
-                                            className="px-2 py-1 text-xs font-medium rounded hover:bg-purple-600 transition-colors"
+                                            className="px-3 py-2 text-xs font-semibold rounded-lg bg-purple-100 text-purple-700 hover:bg-purple-200 transition-all"
                                             title="Add Shipping"
                                         >
                                             + Shipping
@@ -147,7 +150,7 @@ const AppContent: React.FC = () => {
 
                                     <button
                                         onClick={() => setIsProfileOpen(true)}
-                                        className="px-3 py-2 hover:bg-slate-700 rounded transition-colors text-sm font-medium"
+                                        className="px-4 py-2 hover:bg-slate-100 rounded-lg transition-colors text-sm font-semibold text-slate-700 hover:text-slate-900"
                                         title="My Profile"
                                     >
                                         👤 Profile
@@ -155,7 +158,7 @@ const AppContent: React.FC = () => {
 
                                     <button
                                         onClick={logout}
-                                        className="px-3 py-2 text-red-400 hover:bg-red-500/20 hover:text-red-300 rounded transition-colors text-sm font-medium"
+                                        className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-all text-sm font-semibold"
                                         title="Logout"
                                     >
                                         Logout
@@ -165,12 +168,12 @@ const AppContent: React.FC = () => {
                                 <>
                                     <button
                                         onClick={() => setIsLoginOpen(true)}
-                                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-all"
+                                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-all shadow-md hover:shadow-lg"
                                     >
                                         Login
                                     </button>
-                                    <a href="#comparison" className="px-4 py-2 border border-blue-500 text-blue-400 hover:bg-blue-500/10 text-sm font-medium rounded transition-all">
-                                        View Analysis
+                                    <a href="#comparison" className="px-4 py-2 border-2 border-blue-600 text-blue-600 hover:bg-blue-50 text-sm font-semibold rounded-lg transition-all">
+                                        Analysis
                                     </a>
                                 </>
                             )}
@@ -179,34 +182,34 @@ const AppContent: React.FC = () => {
 
                     {/* Mobile Menu */}
                     {isMobileMenuOpen && (
-                        <div className="lg:hidden mt-4 pt-4 border-t border-slate-700 space-y-3">
+                        <div className="lg:hidden mt-2 pt-4 border-t border-slate-200 space-y-2 pb-4">
                             {NAV_LINKS.map(link => (
                                 <a 
                                     key={link.href} 
                                     href={link.href} 
                                     onClick={() => setIsMobileMenuOpen(false)}
-                                    className="block px-4 py-2 hover:bg-slate-800 rounded transition-colors text-sm font-medium"
+                                    className="block px-4 py-2 hover:bg-blue-50 rounded-lg transition-colors text-sm font-semibold text-slate-700 hover:text-blue-600"
                                 >
                                     {link.label}
                                 </a>
                             ))}
-                            <div className="border-t border-slate-700 pt-3 space-y-2">
+                            <div className="border-t border-slate-200 pt-3 space-y-2">
                                 {user ? (
                                     <>
-                                        <div className="px-4 py-2 text-sm">
-                                            <div className="text-blue-400">{user.role === 'admin' ? '👑 Admin' : '👤 Customer'}</div>
-                                            <div className="font-semibold">{user.name || user.email || user.username}</div>
+                                        <div className="px-4 py-3 bg-slate-50 rounded-lg">
+                                            <div className="text-xs font-semibold text-blue-600">{user.role === 'admin' ? '👑 ADMIN' : '👤 CUSTOMER'}</div>
+                                            <div className="font-bold text-slate-900">{user.name || user.email || user.username}</div>
                                         </div>
                                         <button
                                             onClick={() => setIsProfileOpen(true)}
-                                            className="w-full text-left px-4 py-2 hover:bg-slate-800 rounded text-sm font-medium"
+                                            className="w-full text-left px-4 py-2 hover:bg-slate-100 rounded-lg text-sm font-semibold text-slate-700"
                                         >
                                             👤 Profile
                                         </button>
                                         {user.role === 'user' && (
                                             <button
                                                 onClick={() => { setIsCartOpen(true); setIsMobileMenuOpen(false); }}
-                                                className="w-full text-left px-4 py-2 hover:bg-slate-800 rounded text-sm font-medium"
+                                                className="w-full text-left px-4 py-2 hover:bg-slate-100 rounded-lg text-sm font-semibold text-slate-700"
                                             >
                                                 🛒 Cart ({cartItems.length})
                                             </button>
@@ -214,14 +217,14 @@ const AppContent: React.FC = () => {
                                         {user.role === 'admin' && (
                                             <button
                                                 onClick={() => { setIsProfileOpen(true); setIsMobileMenuOpen(false); }}
-                                                className="w-full text-left px-4 py-2 hover:bg-slate-800 rounded text-sm font-medium"
+                                                className="w-full text-left px-4 py-2 hover:bg-slate-100 rounded-lg text-sm font-semibold text-slate-700"
                                             >
                                                 📊 Dashboard
                                             </button>
                                         )}
                                         <button
                                             onClick={() => { logout(); setIsMobileMenuOpen(false); }}
-                                            className="w-full text-left px-4 py-2 text-red-400 hover:bg-red-500/20 rounded text-sm font-medium"
+                                            className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg text-sm font-semibold"
                                         >
                                             Logout
                                         </button>
@@ -230,14 +233,14 @@ const AppContent: React.FC = () => {
                                     <>
                                         <button
                                             onClick={() => { setIsLoginOpen(true); setIsMobileMenuOpen(false); }}
-                                            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded transition-all"
+                                            className="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg transition-all"
                                         >
                                             Login
                                         </button>
                                         <a 
                                             href="#comparison" 
                                             onClick={() => setIsMobileMenuOpen(false)}
-                                            className="block px-4 py-2 border border-blue-500 text-blue-400 hover:bg-blue-500/10 text-sm font-medium rounded text-center"
+                                            className="block px-4 py-2 border-2 border-blue-600 text-blue-600 hover:bg-blue-50 text-sm font-semibold rounded-lg text-center"
                                         >
                                             View Analysis
                                         </a>
