@@ -34,6 +34,179 @@ const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
 });
 
+// Database Initialization Function
+async function initializeDatabase() {
+    try {
+        const client = await pool.connect();
+        console.log('✓ Database connected, initializing schema...');
+
+        // Create sequences
+        const sequences = [
+            'CREATE SEQUENCE IF NOT EXISTS admins_admin_id_seq START WITH 4',
+            'CREATE SEQUENCE IF NOT EXISTS brands_brand_id_seq START WITH 9',
+            'CREATE SEQUENCE IF NOT EXISTS cart_cart_id_seq START WITH 25',
+            'CREATE SEQUENCE IF NOT EXISTS categories_category_id_seq START WITH 10',
+            'CREATE SEQUENCE IF NOT EXISTS customers_customer_id_seq START WITH 10',
+            'CREATE SEQUENCE IF NOT EXISTS orders_order_id_seq START WITH 1',
+            'CREATE SEQUENCE IF NOT EXISTS order_items_order_item_id_seq START WITH 1',
+            'CREATE SEQUENCE IF NOT EXISTS payments_payment_id_seq START WITH 1',
+            'CREATE SEQUENCE IF NOT EXISTS products_product_id_seq START WITH 10'
+        ];
+
+        for (const seq of sequences) {
+            await client.query(seq);
+        }
+        console.log('✓ Sequences created');
+
+        // Create tables
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS admins (
+              admin_id INTEGER PRIMARY KEY DEFAULT nextval('admins_admin_id_seq'),
+              username VARCHAR(50) UNIQUE NOT NULL,
+              password VARCHAR(255) NOT NULL,
+              full_name VARCHAR(100),
+              profile_picture BYTEA
+            )
+        `);
+
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS brands (
+              brand_id INTEGER PRIMARY KEY DEFAULT nextval('brands_brand_id_seq'),
+              name VARCHAR(100) NOT NULL,
+              description TEXT
+            )
+        `);
+
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS categories (
+              category_id INTEGER PRIMARY KEY DEFAULT nextval('categories_category_id_seq'),
+              name VARCHAR(100) NOT NULL,
+              description TEXT
+            )
+        `);
+
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS customers (
+              customer_id INTEGER PRIMARY KEY DEFAULT nextval('customers_customer_id_seq'),
+              first_name VARCHAR(50) NOT NULL,
+              last_name VARCHAR(50) NOT NULL,
+              email VARCHAR(100) UNIQUE NOT NULL,
+              password VARCHAR(255) NOT NULL,
+              phone VARCHAR(20),
+              address TEXT,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              profile_picture BYTEA
+            )
+        `);
+
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS products (
+              product_id INTEGER PRIMARY KEY DEFAULT nextval('products_product_id_seq'),
+              name VARCHAR(150) NOT NULL,
+              description TEXT,
+              price DECIMAL(10, 2) NOT NULL,
+              stock INTEGER NOT NULL,
+              category_id INTEGER REFERENCES categories(category_id) ON DELETE SET NULL,
+              brand_id INTEGER REFERENCES brands(brand_id) ON DELETE SET NULL,
+              image VARCHAR(255),
+              specification TEXT,
+              reasons_to_buy TEXT,
+              reasons_to_avoid TEXT
+            )
+        `);
+
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS cart (
+              cart_id INTEGER PRIMARY KEY DEFAULT nextval('cart_cart_id_seq'),
+              customer_id INTEGER REFERENCES customers(customer_id) ON DELETE CASCADE,
+              product_id INTEGER REFERENCES products(product_id) ON DELETE CASCADE,
+              quantity INTEGER DEFAULT 1,
+              added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS orders (
+              order_id INTEGER PRIMARY KEY DEFAULT nextval('orders_order_id_seq'),
+              customer_id INTEGER REFERENCES customers(customer_id) ON DELETE CASCADE,
+              total DECIMAL(10, 2) NOT NULL,
+              status VARCHAR(20) DEFAULT 'Pending',
+              order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS order_items (
+              order_item_id INTEGER PRIMARY KEY DEFAULT nextval('order_items_order_item_id_seq'),
+              order_id INTEGER REFERENCES orders(order_id) ON DELETE CASCADE,
+              product_id INTEGER REFERENCES products(product_id) ON DELETE CASCADE,
+              quantity INTEGER NOT NULL,
+              price DECIMAL(10, 2) NOT NULL
+            )
+        `);
+
+        await client.query(`
+            CREATE TABLE IF NOT EXISTS payments (
+              payment_id INTEGER PRIMARY KEY DEFAULT nextval('payments_payment_id_seq'),
+              order_id INTEGER REFERENCES orders(order_id) ON DELETE CASCADE,
+              payment_method VARCHAR(50) NOT NULL,
+              payment_status VARCHAR(20) DEFAULT 'Pending',
+              amount DECIMAL(10, 2) NOT NULL,
+              payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        console.log('✓ All tables created');
+
+        // Insert initial data (only if empty)
+        const adminCheck = await client.query('SELECT COUNT(*) FROM admins');
+        if (adminCheck.rows[0].count === 0) {
+            await client.query(`
+                INSERT INTO admins (admin_id, username, password, full_name) VALUES
+                (1, 'admin', 'admin123', 'John Ron Paul Almia'),
+                (2, 'jrpalmia@gmail.com', 'almia123', 'john ron paul almia')
+            `);
+
+            await client.query(`
+                INSERT INTO brands (brand_id, name, description) VALUES
+                (1, 'Samsung', 'Leading electronics manufacturer'),
+                (2, 'Apple', 'Premium technology brand'),
+                (3, 'Dell', 'Computer and laptop brand'),
+                (4, 'Generic', 'Various brands'),
+                (5, 'Lenovo', 'Lenovo is a leading global technology company')
+            `);
+
+            await client.query(`
+                INSERT INTO categories (category_id, name, description) VALUES
+                (2, 'Smartphones', 'Mobile phones and accessories'),
+                (3, 'Laptops', 'Computers and notebooks'),
+                (4, 'Tablets', 'Tablet devices and accessories'),
+                (5, 'Accessories', 'Phone and computer accessories')
+            `);
+
+            await client.query(`
+                INSERT INTO customers (customer_id, first_name, last_name, email, password, phone, address, created_at) VALUES
+                (1, 'junjun', 'labyu', 'meow@gmail.com', '12345678', NULL, NULL, '2025-12-01 12:42:41'),
+                (4, 'Demo', 'User', 'demo@gizmohub.com', 'demo123', '555-0000', NULL, '2025-12-13 10:24:10')
+            `);
+
+            await client.query(`
+                INSERT INTO products (product_id, name, description, price, stock, category_id, brand_id) VALUES
+                (1, 'Samsung Galaxy S24', 'Latest Samsung smartphone with 5G', 999.99, 50, 2, 1),
+                (2, 'iPhone 15 Pro', 'Premium Apple smartphone', 1299.99, 30, 2, 2),
+                (3, 'Dell XPS 13', 'Portable and powerful laptop', 1199.99, 20, 3, 3)
+            `);
+
+            console.log('✓ Sample data inserted');
+        }
+
+        client.release();
+        console.log('✓ Database initialization complete!\n');
+    } catch (err) {
+        console.error('Database initialization error:', err.message);
+    }
+}
+
 // Start Server
 const PORT = process.env.PORT || 5000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -42,8 +215,10 @@ console.log('Binding to host:', HOST);
 
 let server;
 try {
-    server = app.listen(PORT, HOST, () => {
+    server = app.listen(PORT, HOST, async () => {
         console.log(`✓ Server listening on ${HOST}:${PORT}`);
+        // Initialize database on startup
+        await initializeDatabase();
     });
 } catch (err) {
     console.error('Failed to start server:', err);
