@@ -29,6 +29,11 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
 });
 
+// Debug: Log environment
+console.log('Environment variables loaded:');
+console.log('DATABASE_URL:', process.env.DATABASE_URL ? 'SET (' + process.env.DATABASE_URL.substring(0, 30) + '...)' : 'NOT SET');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
 // PostgreSQL Connection Pool
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
