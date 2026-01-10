@@ -326,6 +326,12 @@ app.post('/api/payments', async (req, res) => {
 });
 
 // Start Server
+const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || '0.0.0.0';
+console.log('Creating server on port:', PORT);
+console.log('Binding to host:', HOST);
+
+let server;
 try {
     server = app.listen(PORT, HOST, async () => {
         console.log(`✓ Server listening on ${HOST}:${PORT}`);
