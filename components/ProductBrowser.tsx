@@ -194,10 +194,10 @@ export const ProductBrowser: React.FC = () => {
                                 ))}
                             </div>
                         </div>
-                    </div>
+                        </div>
 
-                    {/* Products */}
-                    <div className="lg:col-span-3">
+                        {/* Products */}
+                        <div className="lg:col-span-3">
                         {loadingProducts && (
                             <div className="text-center py-12 text-slate-600">
                                 Loading products...
