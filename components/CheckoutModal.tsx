@@ -112,7 +112,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, c
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg my-8">
+            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-6xl my-8 max-h-[90vh]">
                 {/* Header */}
                 <div className="flex justify-between items-center p-8 border-b-2 border-slate-100 bg-gradient-to-r from-blue-50 to-slate-50">
                     <div>
@@ -127,40 +127,17 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, c
                     </button>
                 </div>
 
-                {/* Scrollable Content */}
-                <div className="overflow-y-auto max-h-[calc(100vh-200px)]">
-                    <form onSubmit={handleSubmit} className="p-8 space-y-8">
-                        {/* Order Summary */}
-                        <div className="bg-gradient-to-br from-blue-50 via-slate-50 to-blue-50 rounded-2xl p-6 border-2 border-blue-100 shadow-sm">
-                            <h3 className="font-bold text-slate-900 mb-5 text-xl flex items-center gap-2">
-                                <span>📦</span> Order Summary
-                            </h3>
-                            <div className="space-y-4 mb-6 pb-6 border-b-2 border-blue-200">
-                                {cartItems.length > 0 ? cartItems.map((item) => (
-                                    <div key={item.product_id || item.id} className="flex justify-between items-start">
-                                        <div className="flex-1">
-                                            <p className="font-bold text-slate-900 text-base">{item.name}</p>
-                                            <p className="text-sm text-slate-600">Qty: <span className="font-semibold">{item.quantity}</span></p>
-                                        </div>
-                                        <span className="font-bold text-slate-900 text-lg">₱{(item.price * item.quantity).toFixed(2)}</span>
-                                    </div>
-                                )) : (
-                                    <p className="text-slate-500 text-center py-4">No items in cart</p>
-                                )}
-                            </div>
-                            <div className="flex justify-between items-center bg-white rounded-lg p-4">
-                                <span className="font-bold text-slate-900 text-lg">Total:</span>
-                                <span className="font-bold text-blue-600 text-3xl">₱{total.toFixed(2)}</span>
-                            </div>
-                        </div>
-
-                        {/* Payment Method Section */}
-                        <div>
-                            <label className="block text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                <span>💳</span>
-                                Select Payment Method
-                            </label>
-                            <div className="grid grid-cols-1 gap-3">
+                {/* Landscape Layout: Two Columns */}
+                <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
+                    <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+                        {/* LEFT COLUMN: Payment Methods */}
+                        <div className="p-8 border-r border-slate-200 space-y-6 bg-slate-50">
+                            <div>
+                                <label className="block text-lg font-bold text-slate-900 mb-5 flex items-center gap-2">
+                                    <span>💳</span>
+                                    Payment Method
+                                </label>
+                                <div className="space-y-3">
                                 {[
                                     { value: 'credit', label: 'Credit Card', icon: '💳' },
                                     { value: 'debit', label: 'Debit Card', icon: '🏦' },
@@ -172,8 +149,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, c
                                         key={method.value} 
                                         className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
                                             paymentMethod === method.value 
-                                                ? 'border-blue-500 bg-blue-50 shadow-md' 
-                                                : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-blue-50'
+                                                ? 'border-blue-500 bg-blue-100 shadow-md' 
+                                                : 'border-slate-300 bg-white hover:border-blue-300 hover:bg-blue-50'
                                         }`}
                                     >
                                         <input
@@ -185,109 +162,143 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, c
                                             className="w-5 h-5 accent-blue-600"
                                         />
                                         <span className="ml-3 text-xl">{method.icon}</span>
-                                        <span className="ml-2 font-semibold text-slate-900 text-base">{method.label}</span>
+                                        <span className="ml-2 font-semibold text-slate-900 text-sm">{method.label}</span>
                                     </label>
                                 ))}
                             </div>
+                            
+                            {/* Info Box */}
+                            <div className="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                                <p className="text-xs text-blue-800 font-semibold">💡 Secure Payment</p>
+                                <p className="text-xs text-blue-700 mt-1">All transactions are encrypted and secure</p>
+                            </div>
+                        </div>
                         </div>
 
-                        {/* Card Details (only show for credit/debit) */}
-                        {(paymentMethod === 'credit' || paymentMethod === 'debit') && (
-                            <div className="bg-slate-100 rounded-2xl p-6 border-2 border-slate-300 space-y-5">
-                                <h4 className="font-bold text-slate-900 text-lg flex items-center gap-2">
-                                    <span>🔐</span> Card Details
-                                </h4>
-                                
-                                <div>
-                                    <label className="block text-sm font-bold text-slate-900 mb-2">
-                                        Card Number
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="cardNumber"
-                                        placeholder="1234 5678 9012 3456"
-                                        value={formData.cardNumber}
-                                        onChange={handleChange}
-                                        maxLength={19}
-                                        className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-lg bg-white"
-                                    />
+                        {/* RIGHT COLUMN: Order Summary & Card Details */}
+                        <div className="p-8 space-y-6 bg-white">
+                            {/* Order Summary */}
+                            <div className="bg-gradient-to-br from-blue-50 via-slate-50 to-blue-50 rounded-2xl p-6 border-2 border-blue-100 shadow-sm">
+                                <h3 className="font-bold text-slate-900 mb-5 text-xl flex items-center gap-2">
+                                    <span>📦</span> Order Summary
+                                </h3>
+                                <div className="space-y-3 mb-6 pb-6 border-b-2 border-blue-200 max-h-48 overflow-y-auto">
+                                    {cartItems.length > 0 ? cartItems.map((item) => (
+                                        <div key={item.product_id || item.id} className="flex justify-between items-start text-sm">
+                                            <div className="flex-1">
+                                                <p className="font-bold text-slate-900">{item.name}</p>
+                                                <p className="text-xs text-slate-600">Qty: <span className="font-semibold">{item.quantity}</span></p>
+                                            </div>
+                                            <span className="font-bold text-slate-900">₱{(item.price * item.quantity).toFixed(2)}</span>
+                                        </div>
+                                    )) : (
+                                        <p className="text-slate-500 text-center py-4">No items in cart</p>
+                                    )}
                                 </div>
-
-                                <div>
-                                    <label className="block text-sm font-bold text-slate-900 mb-2">
-                                        Card Holder Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        name="cardHolder"
-                                        placeholder="John Doe"
-                                        value={formData.cardHolder}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
-                                    />
+                                <div className="flex justify-between items-center bg-white rounded-lg p-4">
+                                    <span className="font-bold text-slate-900">Total:</span>
+                                    <span className="font-bold text-blue-600 text-2xl">₱{total.toFixed(2)}</span>
                                 </div>
+                            </div>
 
-                                <div className="grid grid-cols-2 gap-4">
+                            {/* Card Details (only show for credit/debit) */}
+                            {(paymentMethod === 'credit' || paymentMethod === 'debit') && (
+                                <div className="bg-slate-50 rounded-2xl p-6 border-2 border-slate-200 space-y-4">
+                                    <h4 className="font-bold text-slate-900 text-lg flex items-center gap-2">
+                                        <span>🔐</span> Card Details
+                                    </h4>
+                                    
                                     <div>
-                                        <label className="block text-sm font-bold text-slate-900 mb-2">
-                                            Expiry Date
+                                        <label className="block text-xs font-bold text-slate-900 mb-1">
+                                            Card Number
                                         </label>
                                         <input
                                             type="text"
-                                            name="expiryDate"
-                                            placeholder="MM/YY"
-                                            value={formData.expiryDate}
+                                            name="cardNumber"
+                                            placeholder="1234 5678 9012 3456"
+                                            value={formData.cardNumber}
                                             onChange={handleChange}
-                                            maxLength={5}
-                                            className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono bg-white"
+                                            maxLength={19}
+                                            className="w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm bg-white"
                                         />
                                     </div>
+
                                     <div>
-                                        <label className="block text-sm font-bold text-slate-900 mb-2">
-                                            CVV
+                                        <label className="block text-xs font-bold text-slate-900 mb-1">
+                                            Card Holder Name
                                         </label>
                                         <input
                                             type="text"
-                                            name="cvv"
-                                            placeholder="123"
-                                            value={formData.cvv}
+                                            name="cardHolder"
+                                            placeholder="John Doe"
+                                            value={formData.cardHolder}
                                             onChange={handleChange}
-                                            maxLength={4}
-                                            className="w-full px-4 py-3 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono bg-white"
+                                            className="w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm"
                                         />
                                     </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-900 mb-1">
+                                                Expiry Date
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="expiryDate"
+                                                placeholder="MM/YY"
+                                                value={formData.expiryDate}
+                                                onChange={handleChange}
+                                                maxLength={5}
+                                                className="w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono bg-white text-sm"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold text-slate-900 mb-1">
+                                                CVV
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="cvv"
+                                                placeholder="123"
+                                                value={formData.cvv}
+                                                onChange={handleChange}
+                                                maxLength={4}
+                                                className="w-full px-3 py-2 border-2 border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono bg-white text-sm"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {/* Error Message */}
-                        {error && (
-                            <div className="bg-red-50 border-l-4 border-red-600 text-red-700 px-5 py-4 rounded-lg flex items-start gap-3">
-                                <span className="text-2xl">⚠️</span>
-                                <span className="font-semibold text-base">{error}</span>
-                            </div>
-                        )}
+                            {/* Error Message */}
+                            {error && (
+                                <div className="bg-red-50 border-l-4 border-red-600 text-red-700 px-4 py-3 rounded-lg flex items-start gap-2 text-sm">
+                                    <span className="text-lg">⚠️</span>
+                                    <span className="font-semibold">{error}</span>
+                                </div>
+                            )}
 
-                        {/* Success Message */}
-                        {success && (
-                            <div className="bg-green-50 border-l-4 border-green-600 text-green-700 px-5 py-4 rounded-lg flex items-start gap-3">
-                                <span className="text-2xl">✅</span>
-                                <span className="font-semibold text-base">{success}</span>
-                            </div>
-                        )}
+                            {/* Success Message */}
+                            {success && (
+                                <div className="bg-green-50 border-l-4 border-green-600 text-green-700 px-4 py-3 rounded-lg flex items-start gap-2 text-sm">
+                                    <span className="text-lg">✅</span>
+                                    <span className="font-semibold">{success}</span>
+                                </div>
+                            )}
 
-                        {/* Submit Button */}
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-slate-400 disabled:to-slate-400 text-white font-bold py-4 rounded-xl transition-all duration-200 text-lg shadow-lg hover:shadow-xl disabled:shadow-none"
-                        >
-                            {loading ? '⏳ Processing...' : `✓ Complete Purchase - ₱${total.toFixed(2)}`}
-                        </button>
+                            {/* Submit Button */}
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-slate-400 disabled:to-slate-400 text-white font-bold py-3 rounded-xl transition-all duration-200 text-base shadow-lg hover:shadow-xl disabled:shadow-none"
+                            >
+                                {loading ? '⏳ Processing...' : `✓ Complete Purchase - ₱${total.toFixed(2)}`}
+                            </button>
 
-                        <p className="text-center text-sm text-slate-600 flex items-center justify-center gap-2">
-                            🔒 Your payment is 100% secure and encrypted
-                        </p>
+                            <p className="text-center text-xs text-slate-600 flex items-center justify-center gap-1">
+                                🔒 100% Secure & Encrypted
+                            </p>
+                        </div>
                     </form>
                 </div>
             </div>
