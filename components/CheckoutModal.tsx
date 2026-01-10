@@ -113,8 +113,15 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, c
     return (
         <div className="fixed inset-0 z-[100] flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto pt-24">
             <div className="bg-white rounded-3xl shadow-2xl w-full max-w-6xl my-8 max-h-[calc(100vh-150px)]">
-                {/* Header */}
+                {/* Header with Back/Close Button */}
                 <div className="flex justify-between items-center p-8 border-b-2 border-slate-100 bg-gradient-to-r from-blue-50 to-slate-50">
+                    <button
+                        onClick={onClose}
+                        className="flex items-center gap-2 px-4 py-2 text-slate-600 hover:text-slate-900 hover:bg-slate-200 rounded-lg transition-colors font-semibold"
+                        title="Go Back"
+                    >
+                        ← Back
+                    </button>
                     <div>
                         <h2 className="text-3xl font-bold text-slate-900">Checkout</h2>
                         <p className="text-sm text-slate-600 mt-1">Secure payment process</p>
@@ -122,6 +129,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({ isOpen, onClose, c
                     <button
                         onClick={onClose}
                         className="p-2 hover:bg-slate-200 rounded-full transition-colors"
+                        title="Close"
                     >
                         <IconX className="w-6 h-6 text-slate-600" />
                     </button>

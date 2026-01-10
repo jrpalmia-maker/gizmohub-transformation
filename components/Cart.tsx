@@ -106,7 +106,10 @@ export const Cart: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpe
                             {/* Buttons */}
                             <div className="space-y-2 mt-6">
                                 <button 
-                                    onClick={() => setIsCheckoutOpen(true)}
+                                    onClick={() => {
+                                        setIsCheckoutOpen(true);
+                                        onClose();
+                                    }}
                                     className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-all">
                                     💳 Proceed to Checkout
                                 </button>
